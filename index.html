@@ -2,419 +2,564 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ספר המתכונים הסיני המלא</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #8B0000;
             --accent-color: #D4AF37;
-            --bg-color: #2c3e50;
+            --bg-color: #1a1a2e;
             --paper-bg: #fffBe6;
             --font-head: 'Noto Serif TC', serif;
-            --book-width: 800px;
-            --book-height: 85vh;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             margin: 0;
             height: 100vh;
+            width: 100vw;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            perspective: 2500px; /* עומק תלת מימד לדפדוף */
+            perspective: 2000px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         /* --- קונטיינר הספר --- */
         .book {
             position: relative;
-            width: 95%;
-            max-width: var(--book-width);
-            height: var(--book-height);
-            transform-style: preserve-3d;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        /* --- עיצוב דפים כללי (כולל כריכה) --- */
-        .page {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 10px 20px 20px 10px;
-            transform-origin: left center; /* הציר עליו הדף מסתובב */
-            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.000); /* אנימציה חלקה ואיטית */
-            backface-visibility: hidden; /* הסתרת הצד האחורי */
-            background-color: var(--paper-bg);
-            /* טקסטורת נייר */
-            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
-            border: 1px solid #d4c5a3;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            max-width: 800px;
+            max-height: 900px;
+            transform-style: preserve-3d;
+            filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5));
         }
 
-        /* סדר השכבות (Z-Index) כדי שהדפים ישבו אחד על השני נכון */
-        #cover { z-index: 10; }
-        #page1 { z-index: 5; }
-        #page2 { z-index: 4; }
-        #page3 { z-index: 3; }
-        #page4 { z-index: 2; }
-        .back-cover { z-index: 1; background: #5a0000; border-radius: 10px 20px 20px 10px; }
+        @media (min-width: 800px) {
+            .book {
+                height: 90vh;
+                border-radius: 20px;
+            }
+        }
+
+        /* --- דפים --- */
+        .page {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: var(--paper-bg);
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            display: flex;
+            flex-direction: column;
+            
+            transform-origin: left center; 
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backface-visibility: hidden;
+            
+            box-shadow: -8px 0 25px rgba(0,0,0,0.15), 
+                        inset 5px 0 15px rgba(0,0,0,0.05);
+        }
+
+        /* עיגול פינות רק בדסקטופ */
+        @media (min-width: 800px) {
+            .page { 
+                border-radius: 0 20px 20px 0; 
+                border: 2px solid rgba(192, 179, 149, 0.5); 
+                border-left: none; 
+            }
+            .front-cover { 
+                border-radius: 20px !important; 
+            }
+        }
+
+        /* סדר דפים (Z-Index) - הכריכה הכי למעלה */
+        #cover { z-index: 20; }
+        #page1 { z-index: 15; }
+        #page2 { z-index: 10; }
+        #page3 { z-index: 5; }
+        #page4 { z-index: 1; }
 
         /* --- כריכה קדמית --- */
         .front-cover {
-            background-color: var(--primary-color);
-            border: 6px solid var(--primary-color);
-            box-shadow: 
-                inset 0 0 0 5px var(--accent-color), 
-                inset 0 0 0 10px #5a0000;
-            color: var(--accent-color);
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .cover-icon {
-            font-size: 7rem;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px rgba(0,0,0,0.5));
-        }
-
-        .cover-title {
-            font-family: var(--font-head);
-            font-size: 3.5rem;
-            margin: 0;
-            text-shadow: 3px 3px 5px rgba(0,0,0,0.6);
-            border-bottom: 3px solid var(--accent-color);
-            padding-bottom: 15px;
-            width: 80%;
-        }
-
-        /* --- מצב "הפוך" (דף שעברנו אותו) --- */
-        .page.flipped {
-            transform: rotateY(-180deg); /* סיבוב מלא שמאלה */
-        }
-
-        /* --- תוכן הדף --- */
-        .page-content {
-            flex: 1;
+            background: linear-gradient(135deg, #8B0000 0%, #600000 50%, #4a0000 100%);
             display: flex;
             flex-direction: column;
-            height: 100%;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--accent-color);
+            border: 10px solid #3a0000;
+            box-shadow: inset 0 0 0 3px var(--accent-color),
+                        inset 0 0 80px rgba(0,0,0,0.3),
+                        0 0 40px rgba(212, 175, 55, 0.3);
+            cursor: pointer;
             position: relative;
+            overflow: hidden;
+        }
+        
+        .front-cover::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            animation: shimmer 8s infinite linear;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .cover-icon { 
+            font-size: 7rem; 
+            margin-bottom: 30px; 
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .cover-title { 
+            font-family: var(--font-head); 
+            font-size: 3.5rem; 
+            margin: 0; 
+            padding: 0 20px; 
+            line-height: 1.3; 
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                         0 0 20px rgba(212, 175, 55, 0.5);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+        
+        .cover-subtitle { 
+            margin-top: 20px; 
+            font-size: 1.3rem; 
+            opacity: 0.95; 
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .tap-hint { 
+            margin-top: 70px; 
+            font-size: 1.2rem; 
+            animation: pulse 2s infinite; 
+            background: rgba(0,0,0,0.3); 
+            padding: 12px 30px; 
+            border-radius: 50px; 
+            border: 2px solid var(--accent-color);
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3),
+                        inset 0 0 10px rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- תוכן פנימי של עמוד --- */
+        /* חלק עליון קבוע: תמונה וכותרת */
+        .page-top {
+            flex: 0 0 auto;
+            width: 100%;
+            background: #fff;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .recipe-image {
             width: 100%;
-            height: 25%;
+            height: 22vh;
+            min-height: 180px;
+            max-height: 250px;
             object-fit: cover;
             border-bottom: 4px solid var(--accent-color);
+            display: block;
         }
 
         .recipe-header {
-            text-align: center;
-            padding: 15px;
+            padding: 12px;
             background: #fff0d4;
-            border-bottom: 1px solid #e0d5b7;
+            text-align: center;
+            border-bottom: 1px solid #dacba8;
         }
         
-        .recipe-header h2 {
-            font-family: var(--font-head);
-            color: var(--primary-color);
-            margin: 0;
-            font-size: 1.8rem;
-        }
+        .recipe-header h2 { font-family: var(--font-head); color: var(--primary-color); margin: 0; font-size: 1.6rem; }
 
-        /* אזור גלילה לתוכן המתכון */
+        /* חלק אמצעי: אזור הגלילה לטקסט */
         .scroll-area {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
-            padding: 20px 30px;
-            padding-bottom: 80px; /* רווח לכפתורים בתחתית שלא יסתירו טקסט */
-            /* עיצוב פס גלילה */
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) transparent;
+            padding: 20px;
+            padding-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .content-grid {
+        .content-container {
             display: flex;
             flex-wrap: wrap;
             gap: 25px;
         }
 
-        .ingredients-box, .prep-box {
-            background: rgba(255,255,255,0.7);
-            padding: 20px;
+        /* קופסאות תוכן */
+        .section-box {
+            flex: 1;
+            min-width: 100%;
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
             border-radius: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #e0e0e0;
         }
         
-        .ingredients-box { flex: 1; min-width: 250px; }
-        .prep-box { flex: 1.5; min-width: 280px; }
+        @media (min-width: 600px) { .section-box { min-width: 45%; } }
 
-        h3 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--accent-color);
-            font-family: var(--font-head);
-            margin-top: 0;
-            padding-bottom: 5px;
+        h3 { 
+            color: var(--primary-color); 
+            font-family: var(--font-head); 
+            margin-top: 0; 
+            border-bottom: 2px solid var(--accent-color); 
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
-
-        .item { display: flex; margin-bottom: 8px; cursor: pointer; align-items: flex-start; }
-        .item input { margin-left: 10px; margin-top: 5px; accent-color: var(--primary-color); flex-shrink: 0; }
         
-        p { margin-bottom: 15px; line-height: 1.6; }
-        .citation { font-size: 0.75em; color: gray; vertical-align: super; font-weight: bold; }
+        .ingredient-item { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 1rem; line-height: 1.4; cursor: pointer; }
+        .ingredient-item input { margin-left: 12px; margin-top: 4px; accent-color: var(--primary-color); transform: scale(1.2); flex-shrink: 0; }
+        
+        p { margin-bottom: 15px; line-height: 1.6; font-size: 1rem; color: #333; }
+        .citation { font-size: 0.75em; color: #7f8c8d; font-weight: bold; vertical-align: super; }
+        strong { color: var(--primary-color); }
 
-        /* --- כפתורי ניווט --- */
+        /* חלק תחתון קבוע: כפתורים */
         .nav-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
+            flex: 0 0 70px;
             width: 100%;
-            height: 70px;
-            background: linear-gradient(to top, rgba(255, 245, 230, 1), rgba(255, 245, 230, 0));
+            background: #fff0d4; 
+            border-top: 2px solid #e0d5b7;
             display: flex;
-            justify-content: space-between; /* מפריד את הכפתורים לקצוות */
+            justify-content: space-between;
             align-items: center;
-            padding: 0 30px;
-            z-index: 20;
-            pointer-events: none; /* כדי לא להפריע לגלילה של הטקסט שמאחורי השקיפות */
-        }
-
-        .nav-bar button {
-            pointer-events: auto; /* מחזיר לחיצות לכפתורים */
+            padding: 0 20px;
+            z-index: 10;
         }
 
         .btn {
-            background: var(--primary-color);
-            color: var(--accent-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, #600000 100%);
+            color: #fff;
             border: 2px solid var(--accent-color);
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-family: var(--font-head);
+            padding: 12px 28px;
+            border-radius: 50px;
             font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s;
+            font-weight: bold;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2),
+                        inset 0 1px 0 rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:active { 
+            transform: scale(0.96); 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2),
+                        inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .btn-outline { 
+            background: rgba(255,255,255,0.95); 
+            color: var(--primary-color); 
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255,255,255,1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
 
-        .btn:hover { transform: scale(1.05); background: #5a0000; }
-        .btn:disabled { opacity: 0; pointer-events: none; }
-
-        /* רספונסיביות */
+        /* --- מחלקות לוגיות להדפדוף --- */
+        .flipped {
+            transform: rotateY(-180deg);
+            pointer-events: none;
+            box-shadow: 8px 0 25px rgba(0,0,0,0.25);
+        }
+        
+        /* התאמה מיוחדת למובייל */
         @media (max-width: 768px) {
-            .book { width: 100%; height: 100vh; border-radius: 0; }
-            .page { border-radius: 0; border: none; }
-            .cover-title { font-size: 2.5rem; }
-            .recipe-image { height: 200px; }
-            .nav-bar { padding: 0 15px; }
-            .content-grid { flex-direction: column; }
-            .ingredients-box, .prep-box { padding: 15px; }
+            .book { width: 100%; height: 100%; border-radius: 0; }
+            .page { border-radius: 0; border: none; transform-origin: 0% 50%; }
+            .flipped { 
+                transform: translateX(-105%); 
+                opacity: 0; 
+                transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+            .cover-title { font-size: 2.8rem; }
+            .cover-icon { font-size: 6rem; }
+            .section-box { padding: 12px; }
+        }
+
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.8; transform: scale(0.98); } 
         }
     </style>
 </head>
 <body>
 
-    <div class="book">
-        
-        <div class="page front-cover" id="cover" onclick="flipPage(1)">
-            <div class="cover-icon">🍜</div> <h1 class="cover-title">התפריט הסיני שלי</h1>
-            <p style="font-size: 1.3rem; margin-top: 20px;">מתכונים מסורתיים מהמטבח האסייתי</p>
-            <div style="margin-top: 50px; animation: pulse 1.5s infinite; font-size: 1.1rem;">לחצו לפתיחה ⬅️</div>
-        </div>
+<div class="book">
 
-        <div class="page" id="page1">
-            <div class="page-content">
-                <img src="https://img.mako.co.il/2009/11/01/iStock_eggrollsc.jpg" class="recipe-image">
-                <div class="recipe-header"><h2>🥢 אגרול ביתי</h2></div>
-                <div class="scroll-area">
-                    <div class="content-grid">
-                        <div class="ingredients-box">
-                            <h3>מצרכים למילוי ולעטיפה</h3>
-                            <label class="item"><input type="checkbox"> עלי סיגר</label>
-                            <label class="item"><input type="checkbox"> 2 גזרים</label>
-                            <label class="item"><input type="checkbox"> כרוב קטן</label>
-                            <label class="item"><input type="checkbox"> 3-4 שיני שום</label>
-                            <label class="item"><input type="checkbox"> 1 כפית שמן שומשום</label>
-                            <label class="item"><input type="checkbox"> 3 כפות רוטב סויה</label>
-                            <label class="item"><input type="checkbox"> שמן לטיגון עמוק</label>
-                            
-                            <h3 style="margin-top: 15px;">מצרכים ל"דבק"</h3>
-                            <label class="item"><input type="checkbox"> 1 כף קמח</label>
-                            <label class="item"><input type="checkbox"> 3 כפות מים</label>
-                        </div>
-                        <div class="prep-box">
-                            <h3>אופן ההכנה</h3>
-                            <p><strong>שלב המילוי:</strong> שמים את כל מרכיבי המילוי (גזר, כרוב, שום, שמן שומשום וסויה) יחד במחבת, נותנים לזה כ-10 דקות בישול, ולאחר מכן חובה להגיר (לסנן) את הנוזלים <span class="citation">[1]</span>.</p>
-                            <p><strong>שלב הגלגול:</strong> מערבבים את הקמח והמים ליצירת "דבק". לוקחים עלה סיגר, ממלאים בתערובת, מגלגלים וסוגרים את הקצה עם מעט מהדבק שהכנו <span class="citation">[1]</span>.</p>
-                            <p><strong>שלב הטיגון:</strong> בשלב זה ניתן להקפיא לשימוש עתידי או לטגן מיד בשמן עמוק <span class="citation">[1]</span>.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="nav-bar">
-                    <button class="btn" onclick="flipPage(1)">לעמוד הבא ⬅️</button>
-                    <button class="btn" onclick="flipPage(-1)">➡️ סגור ספר</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="page" id="page2">
-            <div class="page-content">
-                <img src="https://elitaofek.co.il/wp-content/uploads/2023/02/אורז-סיני-מטוגן.webp" class="recipe-image">
-                <div class="recipe-header"><h2>🍚 אורז סיני מטוגן</h2></div>
-                <div class="scroll-area">
-                    <div class="content-grid">
-                        <div class="ingredients-box">
-                            <h3>מצרכים</h3>
-                            <label class="item"><input type="checkbox"> 2.5 כוסות אורז לבן מבושל וקר</label>
-                            <label class="item"><input type="checkbox"> 1 גזר קצוץ דק</label>
-                            <label class="item"><input type="checkbox"> 1/2 פלפל אדום קצוץ דק</label>
-                            <label class="item"><input type="checkbox"> 1 שן שום כתושה</label>
-                            <label class="item"><input type="checkbox"> 1 כוס תירס מופשר ושטוף</label>
-                            <label class="item"><input type="checkbox"> 3 בצלים ירוקים קצוצים דק</label>
-                            <label class="item"><input type="checkbox"> 2 ביצים (לחביתה מקושקשת)</label>
-                            
-                            <h3 style="margin-top: 15px;">לרוטב</h3>
-                            <label class="item"><input type="checkbox"> 1/4 כוס רוטב סויה</label>
-                            <label class="item"><input type="checkbox"> 2 כפות רוטב צ'ילי מתוק</label>
-                            <label class="item"><input type="checkbox"> 1 כף סוכר</label>
-                            <label class="item"><input type="checkbox"> 2 כפות שמן לטיגון</label>
-                        </div>
-                        <div class="prep-box">
-                            <h3>אופן ההכנה</h3>
-                            <p>בווק עם שמן מקפיצים גזר ופלפל אדום למשך דקה. מוסיפים שן שום כתושה, תירס ומקפיצים עוד דקה <span class="citation">[3.1]</span>.</p>
-                            <p>מוסיפים את האורז הלבן המבושל והקר, ואת החביתה המקושקשת שהוכנה מראש. מקפיצים הכל יחד במשך 2-3 דקות עד לטיגון <span class="citation">[3.1]</span>.</p>
-                            <p>מוסיפים את הסויה, רוטב הצ'ילי המתוק והסוכר, ומקפיצים עוד כ-2 דקות לספיגת הטעמים. לסיום, מוסיפים את הבצל הירוק הקצוץ, נותנים הקפצה אחרונה ומגישים חם <span class="citation">[3.1]</span>.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="nav-bar">
-                    <button class="btn" onclick="flipPage(1)">לעמוד הבא ⬅️</button>
-                    <button class="btn" onclick="flipPage(-1)">➡️ לעמוד הקודם</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="page" id="page3">
-            <div class="page-content">
-                <img src="https://static.wixstatic.com/media/b77ca3_5b61464e6de8468b92c94971f8e5e91f~mv2.jpg/v1/fill/w_738,h_658,al_c,q_85/b77ca3_5b61464e6de8468b92c94971f8e5e91f~mv2.jpg" class="recipe-image">
-                <div class="recipe-header"><h2>🌽 מרק תירס אגדי</h2></div>
-                <div class="scroll-area">
-                    <div class="content-grid">
-                        <div class="ingredients-box">
-                            <h3>מצרכים</h3>
-                            <label class="item"><input type="checkbox"> 2 כוסות תירס (1 לטיגון, 1 לאחרי הטחינה)</label>
-                            <label class="item"><input type="checkbox"> 1.5 ליטר מים</label>
-                            <label class="item"><input type="checkbox"> 3 כפות קורנפלור</label>
-                            <label class="item"><input type="checkbox"> 3 כפות רוטב סויה</label>
-                            <label class="item"><input type="checkbox"> 1 שן שום</label>
-                            <label class="item"><input type="checkbox"> בצל</label>
-                            <label class="item"><input type="checkbox"> שמן זית</label>
-                            <label class="item"><input type="checkbox"> מלח</label>
-                            <label class="item"><input type="checkbox"> ביצה</label>
-                        </div>
-                        <div class="prep-box">
-                            <h3>אופן ההכנה</h3>
-                            <p>מטגנים בצל בשמן זית עם שן השום וכוס תירס אחת. מוסיפים את המים, מלח ואת הקורנפלור – וטוחנים את המרק למרקם חלק <span class="citation">[3]</span>.</p>
-                            <p>לאחר הטחינה מוסיפים את הכוס השנייה של התירס ואת רוטב הסויה. לסיום, טורפים ביצה ומוזגים אותה לאט למרק תוך כדי ערבוב ליצירת נטיפים <span class="citation">[3]</span>.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="nav-bar">
-                    <button class="btn" onclick="flipPage(1)">לעמוד הבא ⬅️</button>
-                    <button class="btn" onclick="flipPage(-1)">➡️ לעמוד הקודם</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="page" id="page4">
-            <div class="page-content">
-                <img src="https://cdn.goodlifetv.co.il/wp-content/uploads/2022/06/19151652/AdobeStock_111580476.jpg" class="recipe-image">
-                <div class="recipe-header"><h2>🍋 עוף סיני בלימון</h2></div>
-                <div class="scroll-area">
-                    <div class="content-grid">
-                        <div class="ingredients-box">
-                            <h3>מצרכים לעוף ולציפוי</h3>
-                            <label class="item"><input type="checkbox"> 3 חזות עוף (קוביות)</label>
-                            <label class="item"><input type="checkbox"> 1.5 כוסות קמח תופח</label>
-                            <label class="item"><input type="checkbox"> 0.5 כוס קורנפלור</label>
-                            <label class="item"><input type="checkbox"> 1 כפית מלח, 0.5 כפית פלפל שחור</label>
-                            <label class="item"><input type="checkbox"> 1.75 כוסות מי סודה</label>
-                            
-                            <h3 style="margin-top: 15px;">מצרכים לרוטב</h3>
-                            <label class="item"><input type="checkbox"> בצל, גמבה (קוביות גדולות)</label>
-                            <label class="item"><input type="checkbox"> 0.5 כפית אבקת שום</label>
-                            <label class="item"><input type="checkbox"> 1 כף שטוחה מייפל</label>
-                            <label class="item"><input type="checkbox"> 0.75 כוס צ'ילי מתוק</label>
-                            <label class="item"><input type="checkbox"> 1/3 כוס מים, 1/2 לימון, מלח</label>
-                        </div>
-                        <div class="prep-box">
-                            <h3>אופן ההכנה</h3>
-                            <p><strong>הכנת העוף:</strong> מערבבים יבשים, מוסיפים סודה בהדרגה לבלילה. טובלים את העוף ומטגנים בשמן עמוק עד הזהבה.</p>
-                            <p><strong>הכנת הרוטב:</strong> מטגנים בצל, מוסיפים גמבה (שתשאר קריספית) ואת שאר חומרי הרוטב.</p>
-                            <p><strong>הגשה:</strong> מבשלים את העוף עם הרוטב על אש נמוכה עד לציפוי מלא.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="nav-bar">
-                    <button class="btn" disabled>סוף הספר</button>
-                    <button class="btn" onclick="flipPage(-1)">➡️ לעמוד הקודם</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="page back-cover"></div>
-
+    <div class="page front-cover" id="cover" onclick="nextPage()">
+        <div class="cover-icon">🜃</div>
+        <h1 class="cover-title">התפריט הסיני שלי</h1>
+        <div class="cover-subtitle">הספר הדיגיטלי המלא</div>
+        <div class="tap-hint">לחצו לפתיחה</div>
     </div>
 
-    <script>
-        // לוגיקה לדפדוף בספר
-        let flippedCount = 0;
-        
-        function flipPage(direction) {
-            // כיוון 1: מעבר לעמוד הבא (שמאל)
-            // כיוון -1: מעבר לעמוד הקודם (ימין)
-            
-            if (direction === 1) {
-                // לוקחים את העמוד הנוכחי והופכים אותו
-                let elementToFlip;
-                if (flippedCount === 0) elementToFlip = document.getElementById('cover');
-                else elementToFlip = document.getElementById('page' + flippedCount);
+    <div class="page" id="page1">
+        <div class="page-top">
+            <img src="https://img.mako.co.il/2009/11/01/iStock_eggrollsc.jpg" class="recipe-image">
+            <div class="recipe-header"><h2>🥢 אגרול בייתי</h2></div>
+        </div>
+        <div class="scroll-area">
+            <div class="content-container">
+                <div class="section-box">
+                    <h3>מצרכים למילוי ולעטיפה</h3>
+                    <label class="ingredient-item"><input type="checkbox"> עלי סיגר</label>
+                    <label class="ingredient-item"><input type="checkbox"> 2 גזרים</label>
+                    <label class="ingredient-item"><input type="checkbox"> כרוב קטן</label>
+                    <label class="ingredient-item"><input type="checkbox"> 3-4 שיני שום</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 כפית שמן שומשום</label>
+                    <label class="ingredient-item"><input type="checkbox"> 3 כפות רוטב סויה</label>
+                    <label class="ingredient-item"><input type="checkbox"> שמן לטיגון עמוק</label>
+                    
+                    <h3 style="margin-top: 20px;">מצרכים ל"דבק"</h3>
+                    <label class="ingredient-item"><input type="checkbox"> 1 כף קמח</label>
+                    <label class="ingredient-item"><input type="checkbox"> 3 כפות מים</label>
+                </div>
+                <div class="section-box">
+                    <h3>אופן ההכנה</h3>
+                    <p>
+                        <strong>שלב המילוי:</strong> שמים את כל מרכיבי המילוי (גזר, כרוב, שום, שמן שומשום וסויה) יחד במחבת, נותנים לזה כ-10 דקות בישול, ולאחר מכן חובה להגיר (לסנן) את הנוזלים <span class="citation">[1]</span>.
+                    </p>
+                    <p>
+                        <strong>שלב הגלגול:</strong> מערבבים את הקמח והמים ליצירת "דבק". לוקחים עלה סיגר, ממלאים בתערובת, מגלגלים וסוגרים את הקצה עם מעט מהדבק שהכנו <span class="citation">[1]</span>.
+                    </p>
+                    <p>
+                        <strong>שלב הטיגון:</strong> בשלב זה ניתן להקפיא לשימוש עתידי או לטגן מיד בשמן עמוק <span class="citation">[1]</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <button class="btn" onclick="nextPage()">הבא</button>
+            <button class="btn btn-outline" onclick="prevPage()">סגור ספר</button>
+        </div>
+    </div>
 
-                if (elementToFlip) {
-                    elementToFlip.classList.add('flipped');
-                    flippedCount++;
-                }
+    <div class="page" id="page2">
+        <div class="page-top">
+            <img src="https://elitaofek.co.il/wp-content/uploads/2023/02/אורז-סיני-מטוגן.webp" class="recipe-image">
+            <div class="recipe-header"><h2>🍚 אורז סיני מטוגן</h2></div>
+        </div>
+        <div class="scroll-area">
+            <div class="content-container">
+                <div class="section-box">
+                    <h3>מצרכים</h3>
+                    <label class="ingredient-item"><input type="checkbox"> 2.5 כוסות אורז לבן מבושל וקר</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 גזר קצוץ דק</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1/2 פלפל אדום קצוץ דק</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 שן שום כתושה</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 כוס תירס מופשר ושטוף</label>
+                    <label class="ingredient-item"><input type="checkbox"> 3 בצלים ירוקים קצוצים דק</label>
+                    <label class="ingredient-item"><input type="checkbox"> 2 בצים (לחביתה מקושקשת)</label>
+                    
+                    <h3 style="margin-top: 20px;">לרוטב</h3>
+                    <label class="ingredient-item"><input type="checkbox"> 1/4 כוס רוטב סויה</label>
+                    <label class="ingredient-item"><input type="checkbox"> 2 כפות רוטב צ'ילי מתוק</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 כף סוכר</label>
+                    <label class="ingredient-item"><input type="checkbox"> 2 כפות שמן לטיגון</label>
+                </div>
+                <div class="section-box">
+                    <h3>אופן ההכנה</h3>
+                    <p>
+                        בווק עם שמן מקפיצים גזר ופלפל אדום למשך דקה. מוסיפים שן שום כתושה, תירס ומקפיצים עוד דקה <span class="citation">[3.1]</span>.
+                    </p>
+                    <p>
+                        מוסיפים את האורז הלבן המבושל והקר, ואת החביתה המקושקשת שהוכנה מראש. מקפיצים הכל יחד במשך 2-3 דקות עד לטיגון <span class="citation">[3.1]</span>.
+                    </p>
+                    <p>
+                        מוסיפים את הסויה, רוטב הצ'ילי המתוק והסוכר, ומקפיצים עוד כ-2 דקות לספיגת הטעמים. לסיום, מוסיפים את הבצל הירוק הקצוץ, נותנים הקפצה אחרונה ומגישים חם <span class="citation">[3.1]</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <button class="btn" onclick="nextPage()">הבא</button>
+            <button class="btn btn-outline" onclick="prevPage()">הקודם</button>
+        </div>
+    </div>
 
-            } else {
-                // מחזירים את העמוד האחרון שהפכנו
-                let elementToUnflip;
-                // אם היינו ב-1, רוצים לסגור כריכה
-                if (flippedCount === 1) elementToUnflip = document.getElementById('cover');
-                else elementToUnflip = document.getElementById('page' + (flippedCount - 1));
+    <div class="page" id="page3">
+        <div class="page-top">
+            <img src="https://static.wixstatic.com/media/b77ca3_5b61464e6de8468b92c94971f8e5e91f~mv2.jpg/v1/fill/w_738,h_658,al_c,q_85/b77ca3_5b61464e6de8468b92c94971f8e5e91f~mv2.jpg" class="recipe-image">
+            <div class="recipe-header"><h2>🌽 מרק תירס אגדי</h2></div>
+        </div>
+        <div class="scroll-area">
+            <div class="content-container">
+                <div class="section-box">
+                    <h3>מצרכים</h3>
+                    <label class="ingredient-item"><input type="checkbox"> 2 כוסות תירס (1 לטיגון, 1 לאחרי הטחינה)</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1.5 ליטר מים</label>
+                    <label class="ingredient-item"><input type="checkbox"> 3 כפות קורנפלור</label>
+                    <label class="ingredient-item"><input type="checkbox"> 3 כפות רוטב סויה</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 שן שום</label>
+                    <label class="ingredient-item"><input type="checkbox"> בצל</label>
+                    <label class="ingredient-item"><input type="checkbox"> שמן זית</label>
+                    <label class="ingredient-item"><input type="checkbox"> מלח</label>
+                    <label class="ingredient-item"><input type="checkbox"> בצה</label>
+                </div>
+                <div class="section-box">
+                    <h3>אופן ההכנה</h3>
+                    <p>
+                        מטגנים בצל בשמן זית עם שן השום וכוס תירס אחת. מוסיפים את המים, מלח ואת הקורנפלור – וטוחנים את המרק למרקם חלק <span class="citation">[3]</span>.
+                    </p>
+                    <p>
+                        לאחר הטחינה מוסיפים את הכוס השנייה של התירס ואת רוטב הסויה. לסיום, טורפים ביצה ומוזגים אותה לאט למרק תוך כדי ערבוב ליצירת נטיפים <span class="citation">[3]</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <button class="btn" onclick="nextPage()">הבא</button>
+            <button class="btn btn-outline" onclick="prevPage()">הקודם</button>
+        </div>
+    </div>
 
-                if (elementToUnflip) {
-                    elementToUnflip.classList.remove('flipped');
-                    flippedCount--;
-                }
+    <div class="page" id="page4">
+        <div class="page-top">
+            <img src="https://cdn.goodlifetv.co.il/wp-content/uploads/2022/06/19151652/AdobeStock_111580476.jpg" class="recipe-image">
+            <div class="recipe-header"><h2>🍋 עוף סיני בלימון</h2></div>
+        </div>
+        <div class="scroll-area">
+            <div class="content-container">
+                <div class="section-box">
+                    <h3>מצרכים לעוף ולציפוי</h3>
+                    <label class="ingredient-item"><input type="checkbox"> 3 חזות עוף (קוביות)</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1.5 כוסות קמח תופח</label>
+                    <label class="ingredient-item"><input type="checkbox"> 0.5 כוס קורנפלור</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 כפית מלח, 0.5 כפית פלפל שחור</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1.75 כוסות מי סודה</label>
+                    
+                    <h3 style="margin-top: 20px;">מצרכים לרוטב</h3>
+                    <label class="ingredient-item"><input type="checkbox"> בצל, גמבה (קוביות גדולות)</label>
+                    <label class="ingredient-item"><input type="checkbox"> 0.5 כפית אבקת שום</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1 כף שטוחה מייפל</label>
+                    <label class="ingredient-item"><input type="checkbox"> 0.75 כוס צ'ילי מתוק</label>
+                    <label class="ingredient-item"><input type="checkbox"> 1/3 כוס מים, 1/2 לימון, מלח</label>
+                </div>
+                <div class="section-box">
+                    <h3>אופן ההכנה</h3>
+                    <p>
+                        <strong>הכנת העוף:</strong> מערבבים יבשים, מוסיפים סודה בהדרגה לגלילה. טובלים את העוף ומטגנים בשמן עמוק עד הזהבה.
+                    </p>
+                    <p>
+                        <strong>הכנת הרוטב:</strong> מטגנים בצל, מוסיפים גמבה (שתשאר קריספית) ואת שאר חומרי הרוטב.
+                    </p>
+                    <p>
+                        <strong>הגשה:</strong> מבשלים את העוף עם הרוטב על אש נמוכה עד לציפוי מלא.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <button class="btn" style="opacity: 0.5; cursor: default;">סוף הספר</button>
+            <button class="btn btn-outline" onclick="prevPage()">הקודם</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ניהול עמודים פשוט
+    // 0 = כריכה, 1 = אגרול, וכו'
+    let currentPageIndex = 0;
+    const ids = ['cover', 'page1', 'page2', 'page3', 'page4'];
+
+    function nextPage() {
+        if (currentPageIndex < ids.length - 1) { // -1 כי האחרון לא יכול להתהפך
+            // לוקחים את העמוד הנוכחי והופכים אותו
+            const currentElement = document.getElementById(ids[currentPageIndex]);
+            if (currentElement) {
+                currentElement.classList.add('flipped');
+                currentPageIndex++;
+            }
+        } else if (currentPageIndex < ids.length) {
+             // אם זה העמוד האחרון, רק מסמנים אותו כהפוך אם יש צורך (כאן העמוד 4 הוא האחרון)
+             const currentElement = document.getElementById(ids[currentPageIndex]);
+             if (currentElement) {
+                currentElement.classList.add('flipped');
+                currentPageIndex++;
             }
         }
-    </script>
+    }
 
-    <style>
-        @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.5; transform: scale(0.95); } }
-    </style>
+    function prevPage() {
+        if (currentPageIndex > 0) {
+            currentPageIndex--; // חוזרים לאינדקס הקודם
+            const prevElement = document.getElementById(ids[currentPageIndex]);
+            if (prevElement) {
+                prevElement.classList.remove('flipped');
+            }
+        }
+    }
+</script>
+
 </body>
 </html>
